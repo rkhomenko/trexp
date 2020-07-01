@@ -1,7 +1,9 @@
+use std::env;
 use std::fs;
 use std::fs::Metadata;
 use std::io;
 use std::path::{Path, PathBuf};
+use std::process;
 
 struct FileInfo {
     path_buf: PathBuf,
@@ -65,12 +67,31 @@ impl FileSearcher {
     }
 }
 
-fn main() {
+fn run() -> Result<(), String> {
+    let args: Vec<String> = env::args().collect();
+    if args.len() != 2 {
+        return Err(String::from("Incorrect number of arguments!"));
+    }
+
     let mut searcher = FileSearcher::new();
-    searcher.search(Path::new("/home/rk/Documents")).unwrap();
+
+    let dir_path = Path::new(args[1].as_str());
+    match searcher.search(dir_path) {
+        Ok(()) => (),
+        Err(e) => return Err(e.to_string()),
+    }
     searcher.sort_by_size();
 
     for file in searcher.get() {
         println!("{}, size: {}", file.get_path().display(), file.get_size())
+    }
+
+    Ok(())
+}
+
+fn main() {
+    if let Err(e) = run() {
+        println!("Error: {}", e);
+        process::exit(1);
     }
 }
