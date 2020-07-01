@@ -9,9 +9,9 @@ fn visit_dir(dir: &Path) -> io::Result<()> {
             let path = entry.path();
 
             if path.is_dir() {
-                visit_dir(&path).unwrap();
+                visit_dir(&path)?;
             } else {
-                println!("{}", path.to_str().unwrap());
+                println!("{}: size {}", path.display(), entry.metadata()?.len());
             }
         }
     }
