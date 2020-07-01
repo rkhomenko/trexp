@@ -5,4 +5,6 @@ Trash explorer app written in Rust
 - [x] showing file and directory size
 - [ ] file type specification (regular file or directory)
 - [ ] top N entries by size
+- [ ] file size range
+- [ ] traversal depth
 - [ ] file extension specification

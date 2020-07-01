@@ -46,9 +46,9 @@ impl FileSearcher {
 
             if path.is_dir() {
                 FileSearcher::visit_directory(files, &path)?;
-            } else {
-                files.push(FileInfo::new(&path, fs::metadata(&path)?))
             }
+
+            files.push(FileInfo::new(&path, fs::metadata(&path)?))
         }
         Ok(())
     }
@@ -81,17 +81,16 @@ fn run() -> Result<(), String> {
         Ok(()) => (),
         Err(e) => return Err(e.to_string()),
     }
+
     searcher.sort_by_size();
 
     for file in searcher.get() {
         let line = format!("{}, size: {}\n", file.get_path().display(), file.get_size());
-        match io::stdout().write_all(line.as_bytes()) {
-            Ok(()) => (),
-            Err(e) => match e.kind() {
-                ErrorKind::BrokenPipe => (),
-                _ => return Err(e.to_string()),
-            },
-        }
+        io::stdout().write_all(line.as_bytes()).unwrap_or_else(|e| {
+            if e.kind() != ErrorKind::BrokenPipe {
+                panic!("{}", e);
+            }
+        });
     }
 
     Ok(())
