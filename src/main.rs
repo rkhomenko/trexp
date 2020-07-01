@@ -44,7 +44,7 @@ impl FileSearcher {
             let entry = entry?;
             let path = entry.path();
 
-            if path.is_dir() {
+            if path.is_dir() && !entry.file_type()?.is_symlink() {
                 FileSearcher::visit_directory(files, &path)?;
             }
 
