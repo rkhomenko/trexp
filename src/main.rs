@@ -2,6 +2,7 @@ use std::env;
 use std::fs;
 use std::fs::Metadata;
 use std::io;
+use std::io::{ErrorKind, Write};
 use std::path::{Path, PathBuf};
 use std::process;
 
@@ -83,7 +84,14 @@ fn run() -> Result<(), String> {
     searcher.sort_by_size();
 
     for file in searcher.get() {
-        println!("{}, size: {}", file.get_path().display(), file.get_size())
+        let line = format!("{}, size: {}\n", file.get_path().display(), file.get_size());
+        match io::stdout().write_all(line.as_bytes()) {
+            Ok(()) => (),
+            Err(e) => match e.kind() {
+                ErrorKind::BrokenPipe => (),
+                _ => return Err(e.to_string()),
+            },
+        }
     }
 
     Ok(())
